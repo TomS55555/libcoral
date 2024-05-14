@@ -71,6 +71,9 @@ int main(int argc, char* argv[]) {
   const float zero_point = input_tensor->params.zero_point;
   const float mean = absl::GetFlag(FLAGS_input_mean);
   const float std = absl::GetFlag(FLAGS_input_std);
+  std::cout << "Mean: " << mean << std::endl;
+  std::cout << "Std: " << std << std::endl;
+  
   auto input = coral::MutableTensorData<uint8_t>(*input_tensor);
   if (std::abs(scale * std - 1) < 1e-5 && std::abs(mean - zero_point) < 1e-5) {
     // Read the image directly into input tensor as there is no preprocessing
@@ -99,12 +102,12 @@ int main(int argc, char* argv[]) {
   CHECK_EQ(interpreter->Invoke(), kTfLiteOk);
 
   // Read the label file.
-  auto labels = coral::ReadLabelFile(absl::GetFlag(FLAGS_labels_path));
+  //auto labels = coral::ReadLabelFile(absl::GetFlag(FLAGS_labels_path));
 
   for (auto result :
-       coral::GetClassificationResults(*interpreter, 0.0f, /*top_k=*/3)) {
+       coral::GetClassificationResults(*interpreter, 0.0f, 1)) {
     std::cout << "---------------------------" << std::endl;
-    std::cout << labels[result.id] << std::endl;
+    std::cout << "Result id: " <<result.id << std::endl;
     std::cout << "Score: " << result.score << std::endl;
   }
   return 0;
