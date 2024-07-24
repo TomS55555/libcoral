@@ -1,0 +1,12 @@
+    1  make CPU=\aarch64 COMPILATION_MODE=opt -C /workspace/ examples
+    2  scp workspace/out/aarch64/examples/classify_image recyclear@192.168.1.15:
+    3  make CPU=\aarch64 COMPILATION_MODE=opt -C /workspace/ examples
+    4  scp workspace/out/aarch64/examples/classify_image recyclear@192.168.1.15:
+    5  cd workspace/
+    6  ls
+    7  cat recyclear\@192.168.1.15 
+    8  clear
+    9  rm recyclear\@192.168.1.15 
+   10  history
+   11  cat history > history.txt
+   12  history > history.txt

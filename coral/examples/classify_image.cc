@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
   const float std = absl::GetFlag(FLAGS_input_std);
   std::cout << "Mean: " << mean << std::endl;
   std::cout << "Std: " << std << std::endl;
+  std::cout << "Input tensor scale: " << scale << std::endl;
+  std::cout << "Input tensor zero_point: " << zero_point << std::endl;
   
   auto input = coral::MutableTensorData<uint8_t>(*input_tensor);
   if (std::abs(scale * std - 1) < 1e-5 && std::abs(mean - zero_point) < 1e-5) {
@@ -87,22 +89,40 @@ int main(int argc, char* argv[]) {
     coral::ReadFileToOrDie(absl::GetFlag(FLAGS_image_path),
                            reinterpret_cast<char*>(image_data.data()),
                            input.size());
-    for (int i = 0; i < input.size(); ++i) {
-      const float tmp = (image_data[i] - mean) / (std * scale) + zero_point;
-      if (tmp > 255) {
-        input[i] = 255;
-      } else if (tmp < 0) {
-        input[i] = 0;
-      } else {
-        input[i] = static_cast<uint8_t>(tmp);
-      }
-    }
+    // for (int i = 0; i < input.size(); ++i) {
+    //   const float tmp = (image_data[i] - mean) / (std * scale) + zero_point;
+    //   if (tmp > 255) {
+    //     input[i] = 255;
+    //   } else if (tmp < 0) {
+    //     input[i] = 0;
+    //   } else {
+    //     input[i] = static_cast<uint8_t>(tmp);
+    //   }
+    // }
   }
+
+  coral::ReadFileToOrDie(absl::GetFlag(FLAGS_image_path),
+                           reinterpret_cast<char*>(input.data()), input.size());
 
   CHECK_EQ(interpreter->Invoke(), kTfLiteOk);
 
+  const auto* output_tensor = interpreter->output_tensor(0);
+
+  std::cout << "Output tensor scale: " << output_tensor->params.scale << std::endl;
+  std::cout << "Output tensor zero point: " << output_tensor->params.zero_point << std::endl;
+
+  auto outputData = coral::MutableTensorData<uint8_t>(*output_tensor);
+  for (int i = 0; i < outputData.size(); ++i) {
+    std::cout << "Output[" << i << "]: " << static_cast<int>(outputData[i]) << std::endl;
+  }
+
+  CHECK_EQ(output_tensor->type, kTfLiteUInt8)
+      << "Output type is not uint8.";
   // Read the label file.
   //auto labels = coral::ReadLabelFile(absl::GetFlag(FLAGS_labels_path));
+
+
+
 
   for (auto result :
        coral::GetClassificationResults(*interpreter, 0.0f, 1)) {

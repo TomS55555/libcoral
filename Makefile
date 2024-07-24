@@ -101,7 +101,8 @@ examples:
 	                                 //coral/examples:model_pipelining \
 	                                 //coral/examples:classify_image \
 	                                 //coral/examples:backprop_last_layer \
-	                                 //coral/examples:classify_rgb_image
+	                                 //coral/examples:classify_rgb_image \
+					 //coral/examples:supersort_tpu
 	mkdir -p $(EXAMPLES_OUT_DIR)
 	cp -f $(BAZEL_OUT_DIR)/coral/examples/two_models_one_tpu \
 	      $(BAZEL_OUT_DIR)/coral/examples/two_models_two_tpus_threaded \
@@ -109,6 +110,7 @@ examples:
 	      $(BAZEL_OUT_DIR)/coral/examples/classify_image \
 	      $(BAZEL_OUT_DIR)/coral/examples/backprop_last_layer \
               $(BAZEL_OUT_DIR)/coral/examples/classify_rgb_image \
+	      $(BAZEL_OUT_DIR)/coral/examples/supersort_tpu \
 	      $(EXAMPLES_OUT_DIR)
 
 clean:

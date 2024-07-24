@@ -92,6 +92,24 @@ cc_binary(
 )
 
 cc_binary(
+    name = "supersort_tpu",
+    srcs = ["supersort_tpu.cc",
+            "shared_data.h"],
+    deps = [
+        ":file_utils",
+        "//coral:tflite_utils",
+        "//coral/classification:adapter",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@glog",
+        "@libedgetpu//tflite/public:oss_edgetpu_direct_all",  # buildcleaner: keep
+        "@org_tensorflow//tensorflow/lite:framework",
+        "@org_tensorflow//tensorflow/lite/c:common",
+    ],
+    linkopts = ["-lrt"]
+)
+
+cc_binary(
     name = "backprop_last_layer",
     srcs = ["backprop_last_layer.cc"],
     deps = [
