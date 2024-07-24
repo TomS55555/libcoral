@@ -59,7 +59,7 @@ limitations under the License.
 
 ABSL_FLAG(std::string, model_path, "mobilenet_v1_1.0_224_quant_edgetpu.tflite",
           "Path to the tflite model.");
-ABSL_FLAG(std::string, device_index, "0", "Edge TPU device index.");
+ABSL_FLAG(int, device_index, 0, "Edge TPU device index.");
 
 int main(int argc, char* argv[]) {
     absl::ParseCommandLine(argc, argv);
@@ -146,27 +146,6 @@ int main(int argc, char* argv[]) {
         auto start = std::chrono::high_resolution_clock::now();
         std::memcpy(input.data(), data_ptr->image, TPU_IMG_SIZE);
         auto start2 = std::chrono::high_resolution_clock::now();
-        if (std::abs(scale * std - 1) < 1e-5 && std::abs(mean - zero_point) < 1e-5) {
-            // Read the image directly into input tensor as there is no preprocessing
-            // needed.
-            std::cout << "Input data does not require preprocessing." << std::endl;
-            std::memcpy(input.data(), data_ptr->image, TPU_IMG_SIZE);
-            } 
-        else {
-            std::cout << "Input data requires preprocessing." << std::endl;
-            std::vector<uint8_t> image_data(input.size());
-            std::memcpy(image_data.data(), data_ptr->image, TPU_IMG_SIZE);
-            for (int i = 0; i < input.size(); ++i) {
-                const float tmp = (image_data[i] - mean) / (std * scale) + zero_point;
-                if (tmp > 255) {
-                input[i] = 255;
-                } else if (tmp < 0) {
-                input[i] = 0;
-                } else {
-                input[i] = static_cast<uint8_t>(tmp);
-                }
-            }
-        }
         CHECK_EQ(interpreter->Invoke(), kTfLiteOk);
         auto stop = std::chrono::high_resolution_clock::now();
 
